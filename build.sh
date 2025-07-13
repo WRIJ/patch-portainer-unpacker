@@ -29,6 +29,12 @@ patch -u compose-unpacker/go.mod patches/go.mod.patch
 # Patch main.go as a test
 patch -u compose-unpacker/main.go patches/main.go.patch
 
+# Copy webhooks folder
+cp -r patches/webhooks/ compose-unpacker/webhooks/
+
+# Apply webhooks patch
+patch -u compose-unpacker/commands/compose_deploy.go patches/compose_deploy.go.patch
+
 docker build -t compose-unpacker:${TAG} \
   --build-arg TAG="${TAG}" \
   --build-arg GO_VERSION="${GO_VERSION}" \

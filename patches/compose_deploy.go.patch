@@ -1,0 +1,23 @@
+@@ -8,4 +8,5 @@
+ 	"github.com/portainer/compose-unpacker/auth"
+ 	"github.com/portainer/compose-unpacker/exec"
++	"github.com/portainer/compose-unpacker/webhooks"
+ 	"github.com/portainer/portainer/pkg/libstack"
+ 	"github.com/portainer/portainer/pkg/libstack/compose"
+@@ -40,5 +41,5 @@
+ 		Strs("env", cmd.Env).
+ 		Bool("skipTLSVerify", cmd.SkipTLSVerify).
+-		Msg("Deploying Compose stack from Git repository")
++		Msg("Deploying Compose stack from Git repository using patched unpacker")
+
+ 	if cmd.User != "" && cmd.Password != "" {
+@@ -106,4 +107,10 @@
+ 			return exec.ErrDeployComposeFailure
+ 		}
++
++		webhooks.TriggerWebhook(cmd.Destination, "postClone", map[string]interface{}{
++			"projectName":              cmd.ProjectName,
++			"clonePath":                clonePath,
++			"composeRelativeFilePaths": cmd.ComposeRelativeFilePaths,
++		})
+ 	}
