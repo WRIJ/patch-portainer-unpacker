@@ -1,0 +1,3 @@
+@@ -30 +30 @@
+-		kong.Description("A tool to deploy Docker stacks from Git repositories."),
++		kong.Description("A patched tool to deploy Docker stacks from Git repositories."),
