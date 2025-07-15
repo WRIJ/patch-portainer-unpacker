@@ -11,12 +11,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func loadWebhooks(webhookFile string) (map[string]string, error) {
+type WebhookConfig struct {
+	URL string `json:"url"`
+}
+
+var httpClient = &http.Client{
+	Timeout: 15 * time.Second,
+}
+
+func loadWebhooks(webhookFile string) (map[string]WebhookConfig, error) {
 	data, err := os.ReadFile(webhookFile)
 	if err != nil {
 		return nil, err
 	}
-	var hooks map[string]string
+	var hooks map[string]WebhookConfig
 	if err := json.Unmarshal(data, &hooks); err != nil {
 		return nil, err
 	}
@@ -25,6 +33,7 @@ func loadWebhooks(webhookFile string) (map[string]string, error) {
 
 func TriggerWebhook(destination string, hookName string, payload map[string]interface{}) {
 	webhookFile := filepath.Join(destination, "webhooks.json")
+
 	log.Info().
 		Str("webhookFile", webhookFile).
 		Str("hookName", hookName).
@@ -44,16 +53,23 @@ func TriggerWebhook(destination string, hookName string, payload map[string]inte
 		return
 	}
 
-	url, ok := webhooks[hookName]
-	if !ok || url == "" {
+	configMap, ok := webhooks[hookName]
+	if !ok {
 		log.Info().
 			Str("hookName", hookName).
-			Msg("No webhook URL found for the specified hook name, skipping")
+			Msg("Webhook config is missing or not a map, skipping webhook trigger")
+		return
+	}
+
+	if configMap.URL == "" {
+		log.Warn().
+			Str("hookName", hookName).
+			Msg("Webhook URL is empty, skipping webhook trigger")
 		return
 	}
 
 	log.Info().
-		Str("url", url).
+		Str("url", configMap.URL).
 		Str("hookName", hookName).
 		Msg("Triggering webhook")
 
@@ -65,7 +81,7 @@ func TriggerWebhook(destination string, hookName string, payload map[string]inte
 		return
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", configMap.URL, bytes.NewBuffer(body))
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -74,14 +90,11 @@ func TriggerWebhook(destination string, hookName string, payload map[string]inte
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{
-		Timeout: 15 * time.Second,
-	}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Warn().
 			Err(err).
-			Str("url", url).
+			Str("url", configMap.URL).
 			Msg("Webhook call failed")
 		return
 	}
@@ -90,12 +103,12 @@ func TriggerWebhook(destination string, hookName string, payload map[string]inte
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Warn().
 			Int("status", resp.StatusCode).
-			Str("url", url).
+			Str("url", configMap.URL).
 			Msg("Webhook call returned non-2xx status code")
 	} else {
 		log.Info().
 			Int("status", resp.StatusCode).
-			Str("url", url).
+			Str("url", configMap.URL).
 			Msg("Webhook call succeeded")
 	}
 }
