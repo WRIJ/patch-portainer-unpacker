@@ -65,17 +65,17 @@ func TriggerWebhook(destination string, hookName string, payload map[string]inte
 		return
 	}
 
-    req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
 		log.Warn().
 			Err(err).
 			Msg("Failed to create webhook request")
 		return
 	}
-    req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{
-    	Timeout: 15 * time.Second,
+		Timeout: 15 * time.Second,
 	}
 	resp, err := client.Do(req)
 	if err != nil {
