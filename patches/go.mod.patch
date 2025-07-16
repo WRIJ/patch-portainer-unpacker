@@ -1,3 +1,4 @@
 @@ -5 +5 @@
+# Point to the mount of the portainer repository in the build container
 -replace github.com/portainer/portainer => ../../../package/server-ce
 +replace github.com/portainer/portainer => /portainer

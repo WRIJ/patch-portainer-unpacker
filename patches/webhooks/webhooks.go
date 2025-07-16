@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,91 +12,103 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func loadWebhooks(webhookFile string) (map[string]string, error) {
+type WebhookConfig struct {
+	URL string `json:"url"`
+}
+
+func loadWebhooks(webhookFile string) (map[string]WebhookConfig, error) {
 	data, err := os.ReadFile(webhookFile)
 	if err != nil {
 		return nil, err
 	}
-	var hooks map[string]string
+	var hooks map[string]WebhookConfig
 	if err := json.Unmarshal(data, &hooks); err != nil {
 		return nil, err
 	}
 	return hooks, nil
 }
 
-func TriggerWebhook(destination string, hookName string, payload map[string]interface{}) {
+var httpClient = &http.Client{
+	Timeout: 15 * time.Second,
+}
+
+func postWebhook(url string, payload any) (*http.Response, error) {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	return httpClient.Do(req)
+}
+
+func isValidURL(raw string) bool {
+	u, err := url.ParseRequestURI(raw)
+	return err == nil && u.Scheme != "" && u.Host != ""
+}
+
+func TriggerWebhook(destination string, hookName string, payload map[string]any) {
 	webhookFile := filepath.Join(destination, "webhooks.json")
-	log.Info().
-		Str("webhookFile", webhookFile).
+	logger := log.With().
 		Str("hookName", hookName).
+		Str("webhookFile", webhookFile).
+		Logger()
+	logger.Info().
 		Msg("Looking up webhook")
+
 	webhooks, err := loadWebhooks(webhookFile)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Warn().
+			logger.Warn().
 				Err(err).
-				Str("file", webhookFile).
 				Msg("Failed to read webhook file")
 		} else {
-			log.Info().
-				Str("file", webhookFile).
-				Msg("Webhook file does not exist, skipping webhook trigger")
+			logger.Info().
+				Msg("Webhook file does not exist, skipping")
 		}
 		return
 	}
 
-	url, ok := webhooks[hookName]
-	if !ok || url == "" {
-		log.Info().
-			Str("hookName", hookName).
-			Msg("No webhook URL found for the specified hook name, skipping")
+	hookConfig, ok := webhooks[hookName]
+	if !ok {
+		logger.Info().
+			Msg("Webhook config is missing, skipping")
+		return
+	}
+	if !isValidURL(hookConfig.URL) {
+		logger.Warn().
+			Msg("Invalid webhook URL, skipping")
 		return
 	}
 
-	log.Info().
-		Str("url", url).
-		Str("hookName", hookName).
+	logger.Info().
+		Str("url", hookConfig.URL).
 		Msg("Triggering webhook")
 
-	body, err := json.Marshal(payload)
+	resp, err := postWebhook(hookConfig.URL, payload)
 	if err != nil {
-		log.Warn().
+		logger.Warn().
 			Err(err).
-			Msg("Failed to serialize webhook payload")
-		return
-	}
-
-    req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Msg("Failed to create webhook request")
-		return
-	}
-    req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{
-    	Timeout: 15 * time.Second,
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("url", url).
-			Msg("Webhook call failed")
+			Str("url", hookConfig.URL).
+			Msg("Failed to post webhook")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		log.Warn().
+		logger.Warn().
 			Int("status", resp.StatusCode).
-			Str("url", url).
+			Str("url", hookConfig.URL).
 			Msg("Webhook call returned non-2xx status code")
 	} else {
-		log.Info().
+		logger.Info().
 			Int("status", resp.StatusCode).
-			Str("url", url).
+			Str("url", hookConfig.URL).
 			Msg("Webhook call succeeded")
 	}
 }
