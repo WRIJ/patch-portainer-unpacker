@@ -56,6 +56,8 @@ jobs:
         run: |
           issue_link=$(gh issue view ${{ steps.find-issue.outputs.issue_number }} --json url --jq '.url')
           echo "**Existing issue for Portainer ${{ matrix.release }}**: ${issue_link}" >> $GITHUB_STEP_SUMMARY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.find-issue.outputs.issue_number != ''
 
       - name: Create issue for unpatched release
