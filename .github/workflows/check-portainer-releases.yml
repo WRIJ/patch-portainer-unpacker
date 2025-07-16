@@ -1,0 +1,77 @@
+name: Check Portainer Releases
+
+on:
+  schedule:
+    # Not too frequently, catch new releases eventually
+    - cron: '0 0 */14 * *'
+  workflow_dispatch:
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    outputs:
+      unpatched_releases: ${{ steps.unpatched-releases.outputs.releases }}
+      has_unpatched_releases: ${{ steps.unpatched-releases.outputs.found }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find unpatched releases
+        id: unpatched-releases
+        run: ./check_releases.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PATCH_REPOSITORY: ${{ github.repository }}
+
+  create-issues:
+    needs: check-releases
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      matrix:
+        release: ${{ fromJson(needs.check-releases.outputs.unpatched_releases) }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find issue for release
+        id: find-issue
+        run: |
+          number=$(gh issue list \
+            --search "Portainer ${{ matrix.release }}" \
+            --label "unpatched release" \
+            --json number \
+            --jq '.[0].number')
+          echo "issue_number=${number}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report existing issue
+        run: |
+          issue_link=$(gh issue view ${{ steps.find-issue.outputs.issue_number }} --json url --jq '.url')
+          echo "**Existing issue for Portainer ${{ matrix.release }}**: ${issue_link}" >> $GITHUB_STEP_SUMMARY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.find-issue.outputs.issue_number != ''
+
+      - name: Create issue for unpatched release
+        run: |
+          env release="${{ matrix.release }}" envsubst < .github/release-issue-body.md > issue.md
+          issue_link=$(
+            gh issue create \
+              --title "Release a patched version for Portainer ${{ matrix.release }}" \
+              --body-file issue.md \
+              --label "unpatched release"
+          )
+          echo "**Created issue for Portainer ${{ matrix.release }}**: ${issue_link}" >> $GITHUB_STEP_SUMMARY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.find-issue.outputs.issue_number == ''
+
+    if: needs.check-releases.outputs.has_unpatched_releases == 'true'
