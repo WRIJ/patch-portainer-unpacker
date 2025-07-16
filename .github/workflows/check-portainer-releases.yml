@@ -28,6 +28,9 @@ jobs:
   create-issues:
     needs: check-releases
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     strategy:
       matrix:
         release: ${{ fromJson(needs.check-releases.outputs.unpatched_releases) }}
