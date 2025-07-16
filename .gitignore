@@ -1,2 +1,2 @@
-/compose-unpacker
-/portainer
+# Ignore clones of portainer repositories
+/packages/

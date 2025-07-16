@@ -5,8 +5,8 @@ FROM golang:${GO_VERSION} AS builder
 
 WORKDIR /app
 
-COPY ./portainer /portainer
-COPY ./compose-unpacker/ /app
+COPY ./packages/portainer /portainer
+COPY ./packages/compose-unpacker/ /app
 
 RUN go mod download && make
 
