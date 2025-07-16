@@ -62,10 +62,11 @@ jobs:
 
       - name: Create issue for unpatched release
         run: |
+          env release="${{ matrix.release }}" envsubst < .github/release-issue-body.md > issue.md
           issue_link=$(
             gh issue create \
-              --title "Create patch release for Portainer ${{ matrix.release }}" \
-              --body "There is no patched release for Portainer ${{ matrix.release }}. Please check if the patch apply to this version and create a new release if possible." \
+              --title "Release a patched version for Portainer ${{ matrix.release }}" \
+              --body-file issue.md \
               --label "unpatched release"
           )
           echo "**Created issue for Portainer ${{ matrix.release }}**: ${issue_link}" >> $GITHUB_STEP_SUMMARY
