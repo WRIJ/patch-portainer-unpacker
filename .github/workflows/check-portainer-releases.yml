@@ -12,6 +12,7 @@ jobs:
     outputs:
       unpatched_releases: ${{ steps.unpatched-releases.outputs.releases }}
       has_unpatched_releases: ${{ steps.unpatched-releases.outputs.found }}
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
@@ -30,6 +31,7 @@ jobs:
     strategy:
       matrix:
         release: ${{ fromJson(needs.check-releases.outputs.unpatched_releases) }}
+    timeout-minutes: 5
 
     steps:
       - name: Checkout repository
