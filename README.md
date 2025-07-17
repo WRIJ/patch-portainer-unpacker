@@ -1,7 +1,7 @@
-# Portainer Unpacker
+# Portainer Compose Unpacker Patched
 
-A patched Portainer Unpacker image that triggers a webhook after cloning
-a GitOps stack.
+Provides patched Portainer Compose Unpacker image that triggers a webhook after
+cloning a GitOps stack.
 
 The service listening for this webhook must run on the same machine as the
 **Portainer Agent** that manages the stack, and must use the exact same mount
@@ -14,7 +14,7 @@ Portainer stack. You can do this by setting an environment variable when
 starting the **Portainer Server** container:
 
 ```sh
-COMPOSE_UNPACKER_IMAGE=<TBD>:<TAG>
+COMPOSE_UNPACKER_IMAGE=ghcr.io/wrij/portainer-unpacker:<TAG>
 ```
 
 Configure the Portainer Unpacker service (this service) by placing a
@@ -50,11 +50,30 @@ to develop inside a containerized environment directly from VSCode.
 The only prerequisite is having a functional installation of Docker on your
 local machine.
 
-## Building
+## Patching & Building
 
-To build a new image run the build script with the version of Portainer Unpacker
-you want to patch, for example:
+Use the `patch.sh` script to clone the Portainer and Compose Unpacker
+repositories on the specified tag, and apply the patches:
+
+```bash
+./patch.sh 2.31.3
+```
+
+To patch & build the Portainer Compose Unpacker image, run:
 
 ```bash
 ./build.sh 2.31.3
+```
+
+In order to check if the patches are applied correctly, you can run the
+following command:
+
+```bash
+docker run --rm -it compose-unpacker:2.31.3
+```
+
+The output should have the following line:
+
+```
+A patched tool to deploy Docker stacks from Git repositories.
 ```
