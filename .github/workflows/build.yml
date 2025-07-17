@@ -1,0 +1,54 @@
+name: Build Docker Image and Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      portainer_tag:
+        description: The Portainer tag to base the image on
+        required: true
+  workflow_call:
+    inputs:
+      portainer_tag:
+        type: string
+        description: The Portainer tag to base the image on
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Patch compose-unpacker
+        run: ./patch.sh ${{ inputs.portainer_tag }}
+
+      - name: Determine Go version
+        id: go-version
+        run: |
+          # Determine the go version from the go.mod file
+          GO_VERSION=$(grep -oP 'go \K([0-9]+\.?)+' "./packages/compose-unpacker/go.mod")
+          if [ -z "${GO_VERSION}" ]; then
+            echo "Could not determine Go version from go.mod"
+            exit 1
+          fi
+          echo go_version="${GO_VERSION}" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: |
+            GO_VERSION="${{ steps.go-version.outputs.go_version }}"
+            TAG="${{ inputs.portainer_tag }}"
+          push: false
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
