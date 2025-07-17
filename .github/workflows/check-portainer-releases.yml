@@ -64,7 +64,7 @@ jobs:
         uses: ./.github/actions/patch-build
         with:
           portainer_tag: ${{ matrix.release }}
-          image_tag: ghcr.io/${{ github.repository }}:${{ matrix.release }}-test
+          image_tag: ${{ matrix.release }}-test
         continue-on-error: true
         if: steps.find-issue.outputs.issue_number == ''
 

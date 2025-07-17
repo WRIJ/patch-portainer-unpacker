@@ -20,4 +20,4 @@ jobs:
         uses: ./.github/actions/patch-build
         with:
           portainer_tag: ${{ inputs.portainer_tag }}
-          image_tag: ghcr.io/${{ github.repository }}:${{ inputs.portainer_tag }}-test
+          image_tag: ${{ inputs.portainer_tag }}-test

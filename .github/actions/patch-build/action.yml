@@ -37,6 +37,11 @@ runs:
         echo go_version="${GO_VERSION}" >> $GITHUB_OUTPUT
       shell: bash
 
+    - name: Lowercase repository name
+      id: repository
+      run: echo "name=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Build Docker image
       uses: docker/build-push-action@v6
       with:
@@ -45,6 +50,6 @@ runs:
           GO_VERSION="${{ steps.go-version.outputs.go_version }}"
           PORTAINER_TAG="${{ inputs.portainer_tag }}"
         push: ${{ inputs.push }}
-        tags: ${{ inputs.image_tag }}
+        tags: ghcr.io/${{ steps.repository.outputs.name }}:${{ inputs.image_tag }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
