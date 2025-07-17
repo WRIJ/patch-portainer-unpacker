@@ -10,6 +10,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: write
@@ -29,5 +30,5 @@ jobs:
         uses: ./.github/actions/patch-build
         with:
           portainer_tag: ${{ github.event.release.tag_name }}
-          image_tag: ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+          image_tag: ${{ github.event.release.tag_name }}
           push: true

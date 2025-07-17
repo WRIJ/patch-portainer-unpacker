@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         release: ${{ fromJson(needs.check-releases.outputs.unpatched_releases) }}
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -64,7 +64,7 @@ jobs:
         uses: ./.github/actions/patch-build
         with:
           portainer_tag: ${{ matrix.release }}
-          image_tag: ghcr.io/${{ github.repository }}:${{ matrix.release }}-test
+          image_tag: ${{ matrix.release }}-test
         continue-on-error: true
         if: steps.find-issue.outputs.issue_number == ''
 
