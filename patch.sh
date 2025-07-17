@@ -5,12 +5,12 @@ set -euo pipefail
 # Set the script to run in the directory where it is located
 cd "$(dirname "$0")"
 
-TAG=${1:-}
+PORTAINER_TAG=${1:-}
 PACKAGES_DIR="./packages"
 PORTAINER_DIR="${PACKAGES_DIR}/portainer"
 COMPOSE_UNPACKER_DIR="${PACKAGES_DIR}/compose-unpacker"
 
-if [ -z "$TAG" ]; then
+if [ -z "${PORTAINER_TAG}" ]; then
   echo "Usage: $0 <tag>"
   exit 1
 fi
