@@ -1,4 +1,4 @@
-name: Build Docker Image and Check
+name: Patch compose-unpacker and Build Docker Image
 
 on:
   workflow_dispatch:
