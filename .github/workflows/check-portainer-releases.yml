@@ -23,7 +23,6 @@ jobs:
         run: ./check_releases.sh
         env:
           GH_TOKEN: ${{ github.token }}
-          PATCH_REPOSITORY: ${{ github.repository }}
 
   create-issues:
     needs: check-releases
@@ -60,15 +59,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.find-issue.outputs.issue_number != ''
 
+      - name: Attempt patch & build
+        id: patch-build
+        uses: ./.github/actions/patch-build
+        with:
+          portainer_tag: ${{ matrix.release }}
+          image_tag: ghcr.io/${{ github.repository }}:${{ matrix.release }}-test
+        continue-on-error: true
+        if: steps.find-issue.outputs.issue_number == ''
+
       - name: Create issue for unpatched release
         run: |
-          env release="${{ matrix.release }}" envsubst < .github/release-issue-body.md > issue.md
+          release="${{ matrix.release }}" conclusion="${{ steps.patch-build.conclusion }}" run_id=${{ github.run_id }} envsubst < .github/release-issue-body.md > issue.md
           issue_link=$(
             gh issue create \
               --title "Release a patched version for Portainer ${{ matrix.release }}" \
               --body-file issue.md \
               --label "unpatched release"
           )
+          echo "**Build result for Portainer ${{ matrix.release }}**: `${{ steps.patch-build.conclusion }}`" >> $GITHUB_STEP_SUMMARY
           echo "**Created issue for Portainer ${{ matrix.release }}**: ${issue_link}" >> $GITHUB_STEP_SUMMARY
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,13 @@
-There is currently no patched release for
-**[Portainer ${release}](https://github.com/portainer/portainer/releases/tag/${release})**.
+There is currently no patched release for **[Portainer ${release}](https://github.com/portainer/portainer/releases/tag/${release})**.
 
-Please check if patching is still needed and whether the patches are still compatible.
+An attempt to patch and build a test image has been made:
+
+- **Result**: `${conclusion}`
+
+Please check the [GitHub Actions workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ run_id }}) for more details.
+
+If the build was successful, you can create a new release using GitHub Releases.
+In case of a failure, please try to resolve the issue and create a new release.
 
 Thanks!
 
