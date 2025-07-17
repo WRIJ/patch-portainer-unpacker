@@ -23,12 +23,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Strip suffix from tag
+        id: tag
+        run: |
+          # Strip the '-patched' suffix from the tag
+          tag_name="${{ github.event.release.tag_name }}"
+          echo "portainer_tag=${tag_name%-patched*}" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Patch compose-unpacker and Build Docker Image
         uses: ./.github/actions/patch-build
         with:
-          portainer_tag: ${{ github.event.release.tag_name }}
+          portainer_tag: ${{ steps.tag.outputs.portainer_tag }}
           image_tag: ${{ github.event.release.tag_name }}
           push: true
