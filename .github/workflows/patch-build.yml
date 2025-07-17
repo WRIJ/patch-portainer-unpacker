@@ -1,0 +1,22 @@
+name: Build Docker Image and Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      portainer_tag:
+        description: The Portainer tag to base the image on
+        required: true
+
+jobs:
+  patch-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Patch compose-unpacker and Build Docker Image
+        uses: ./.github/actions/patch-build
+        with:
+          portainer_tag: ${{ inputs.portainer_tag }}
+          image_tag: ghcr.io/${{ github.repository }}:${{ inputs.portainer_tag }}-test

@@ -1,0 +1,28 @@
+# The root directory of your project
+root = true
+
+[*]
+# The default charset for all files
+charset = "utf-8"
+
+# The line endings to use
+end_of_line = "lf"
+
+# The indentation style to use
+indent_style = "space"
+indent_size = 4
+
+# Trim trailing whitespace
+trim_trailing_whitespace = true
+
+# Insert a final newline
+insert_final_newline = true
+
+# The maximum line length
+max_line_length = 119
+
+[*.yml, *.yaml]
+indent_size = 2
+
+[*.go]
+indent_style = "tab"
