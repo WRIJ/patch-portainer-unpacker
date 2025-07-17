@@ -16,8 +16,8 @@ if [ -z "${PORTAINER_TAG}" ]; then
 fi
 
 rm -rf "${COMPOSE_UNPACKER_DIR}" "${PORTAINER_DIR}"
-git clone --depth 1 --branch "${TAG}" git@github.com:portainer/portainer.git "${PORTAINER_DIR}"
-git clone --depth 1 --branch "${TAG}" git@github.com:portainer/compose-unpacker.git "${COMPOSE_UNPACKER_DIR}"
+git clone --depth 1 --branch "${PORTAINER_TAG}" https://github.com/portainer/portainer.git "${PORTAINER_DIR}"
+git clone --depth 1 --branch "${PORTAINER_TAG}" https://github.com/portainer/compose-unpacker.git "${COMPOSE_UNPACKER_DIR}"
 
 # Patch the go.mod file to use the mounted portainer directory
 patch -u "${COMPOSE_UNPACKER_DIR}/go.mod" patches/go.mod.patch
