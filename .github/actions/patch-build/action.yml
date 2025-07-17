@@ -1,4 +1,4 @@
-name: Patch compose-unpacker and Build Docker Image
+name: Patch compose-unpacker and build Docker image
 
 inputs:
   portainer_tag:

@@ -1,4 +1,4 @@
-name: Patch compose-unpacker and Build Docker Image
+name: Patch compose-unpacker and build Docker image
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Patch compose-unpacker and Build Docker Image
+      - name: Patch compose-unpacker and build Docker image
         uses: ./.github/actions/patch-build
         with:
           portainer_tag: ${{ inputs.portainer_tag }}
