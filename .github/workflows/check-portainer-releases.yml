@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         release: ${{ fromJson(needs.check-releases.outputs.unpatched_releases) }}
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
