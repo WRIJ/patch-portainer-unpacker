@@ -11,8 +11,8 @@ PORTAINER_DIR="${PACKAGES_DIR}/portainer"
 COMPOSE_UNPACKER_DIR="${PACKAGES_DIR}/compose-unpacker"
 
 if [ -z "${PORTAINER_TAG}" ]; then
-  echo "Usage: $0 <tag>"
-  exit 1
+    echo "Usage: $0 <tag>"
+    exit 1
 fi
 
 rm -rf "${COMPOSE_UNPACKER_DIR}" "${PORTAINER_DIR}"
