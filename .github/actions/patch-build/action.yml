@@ -47,8 +47,8 @@ runs:
       with:
         context: .
         build-args: |
-          GO_VERSION="${{ steps.go-version.outputs.go_version }}"
-          PORTAINER_TAG="${{ inputs.portainer_tag }}"
+          GO_VERSION=${{ steps.go-version.outputs.go_version }}
+          PORTAINER_TAG=${{ inputs.portainer_tag }}
         push: ${{ inputs.push }}
         tags: ghcr.io/${{ steps.repository.outputs.name }}:${{ inputs.image_tag }}
         cache-from: type=gha
