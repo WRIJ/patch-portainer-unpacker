@@ -9,6 +9,10 @@ inputs:
     type: string
     description: The tag for the built Docker image
     required: true
+  push:
+    type: boolean
+    description: Whether to push the built image to the registry
+    default: false
 
 runs:
   using: composite
@@ -39,8 +43,7 @@ runs:
         build-args: |
           GO_VERSION="${{ steps.go-version.outputs.go_version }}"
           PORTAINER_TAG="${{ inputs.portainer_tag }}"
-        push: false
-        load: true
+        push: ${{ inputs.push }}
         tags: ${{ inputs.image_tag }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
