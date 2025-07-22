@@ -77,3 +77,18 @@ The output should have the following line:
 ```
 A patched tool to deploy Docker stacks from Git repositories.
 ```
+
+## Releasing a new image
+
+To publish a new version to the Docker registry, use GitHub Releases as follows:
+
+1. Go to [GitHub Releases](https://github.com/WRIJ/patch-portainer-unpacker/releases/new) and create a new release.
+2. Under **Choose a tag**, enter the new version number based on the Portainer verion (e.g. `2.27.9-patched`).
+   - If this is the second release for the same Portainer version, append a sequence number (e.g. `2.27.9-patched.1`).
+3. Click **Generate release notes** to automatically create a changelog based on pull requests merged since the previous release.
+   - You can edit the release notes and add any extra relevant information.
+4. Click **Publish release** to trigger the release (or **Save draft** if you are not ready to publish yet).
+5. After publishing, a GitHub Actions workflow will automatically:
+   - Build the new image.
+   - Publish it to the Docker registry.
+6. Once the workflow completes successfully, the new image version will be available for use.
