@@ -44,6 +44,7 @@ jobs:
         run: |
           number=$(gh issue list \
             --search "Portainer ${{ matrix.release }}" \
+            --state all \
             --label "unpatched release" \
             --json number \
             --jq '.[0].number')
