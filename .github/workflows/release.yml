@@ -31,7 +31,7 @@ jobs:
           echo "portainer_tag=${tag_name%-patched*}" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Patch compose-unpacker and Build Docker Image
         uses: ./.github/actions/patch-build
