@@ -47,6 +47,6 @@ runs:
         push: ${{ inputs.push }}
         tags: ghcr.io/wrij/portainer-unpacker:${{ inputs.image_tag }}
         labels: |
-          org.opencontainers.image.source={{ github.server_url }}/${{ github.repository }}
+          org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
