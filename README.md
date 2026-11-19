@@ -78,6 +78,17 @@ The output should have the following line:
 A patched tool to deploy Docker stacks from Git repositories.
 ```
 
+## Creating/updating patches
+
+If a patch needs to be created or updated, follow these steps:
+
+1. Make the necessary changes to the checkout of the compose-unpacker repository.
+2. Generate the patch file using:
+
+```bash
+git diff -U2 -- <file> | tail -n +5 /workspace/patch-portainer-unpacker/patches/<file>.patch
+```
+
 ## Releasing a new image
 
 To publish a new version to the Docker registry, use GitHub Releases as follows:
