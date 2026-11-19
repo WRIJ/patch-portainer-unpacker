@@ -1,14 +1,13 @@
 {
     "image": "mcr.microsoft.com/devcontainers/go:latest",
     "features": {
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": "false"
+        }
     },
     "customizations": {
         "vscode": {
-            "extensions": [
-                "github.vscode-github-actions",
-                "golang.go"
-            ]
+            "extensions": ["github.vscode-github-actions", "golang.go"]
         }
     }
 }
