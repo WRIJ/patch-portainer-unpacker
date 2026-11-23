@@ -1,4 +1,7 @@
-@@ -5 +5 @@
-# Point to the mount of the portainer repository in the build container
+@@ -3,5 +3,5 @@ module github.com/portainer/compose-unpacker
+ go 1.26.10
+ 
 -replace github.com/portainer/portainer => ../../../package/server-ce
 +replace github.com/portainer/portainer => /portainer
+ 
+ require (
